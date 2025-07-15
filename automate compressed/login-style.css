@@ -1,0 +1,115 @@
+/* ==== Background & Base ==== */
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Segoe UI', sans-serif;
+  background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+  color: white;
+  overflow: hidden;
+}
+
+.login-wrapper {
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+option{
+  background-color: #302b63;
+}
+.login-box {
+  width: 350px;
+  background: rgba(0, 0, 0, 0.6);
+  border: 2px solid #00ffe7;
+  border-radius: 20px;
+  padding: 40px;
+  text-align: center;
+  box-shadow: 0 0 25px #00ffe7;
+  animation: fadeIn 1s ease-out;
+}
+
+.login-box h2 {
+  color: #00ffe7;
+  margin-bottom: 30px;
+  text-shadow: 0 0 10px #00ffe7;
+}
+
+.login-box input,
+.login-box select {
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 18px;
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid #00ffe7;
+  color: rgba(255, 255, 255, 0.342);
+  font-size: 15px;
+  outline: none;
+  transition: 0.3s;
+}
+
+.login-box input:focus,
+.login-box select:focus {
+  border-color: white;
+  box-shadow: 0 0 10px #00ffe7;
+}
+
+.login-box button {
+  width: 100%;
+  padding: 12px;
+  background: transparent;
+  color: #00ffe7;
+  border: 2px solid #00ffe7;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: 0.3s;
+  font-weight: bold;
+}
+
+.login-box button:hover {
+  background: #00ffe7;
+  color: black;
+  box-shadow: 0 0 12px #00ffe7;
+}
+.trail-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  z-index: 1000;
+}
+
+.ghost-dot {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  background: #00ffe7;
+  border-radius: 50%;
+  box-shadow: 0 0 8px #00ffe7, 0 0 16px #00ffe7;
+  mix-blend-mode: screen;
+  opacity: 0.5;
+  transition: opacity 0.3s ease;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Cursor Sparkle */
+.sparkle {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  background: #00ffe7;
+  border-radius: 50%;
+  pointer-events: none;
+  box-shadow: 0 0 40px #00ffe7;
+  animation: sparkleFade 1s forwards;
+}
+
+@keyframes sparkleFade {
+  to { transform: scale(0); opacity: 0; }
+}

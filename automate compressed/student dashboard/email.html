@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Internship Emails</title>
+  <link rel="stylesheet" href="style.css">
+
+  <!-- jsPDF for PDF Export -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+<body>
+  <div class="form-container">
+    <h2>Internship Emails</h2>
+
+    <div id="g_id_signin"></div>
+    <div id="email-list" class="mentor-card"></div>
+
+    <br><a href="student-dashboard.html" style="color:#00ffe7">← Back to Dashboard</a>
+  </div>
+
+  <!-- Load Google APIs -->
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <script src="https://apis.google.com/js/api.js"></script>
+
+  <script>
+    const CLIENT_ID = "169366171203-g55cf5gm2gg93536oep6apibpgface9e.apps.googleusercontent.com";
+    const SCOPES = 'https://www.googleapis.com/auth/gmail.readonly';
+
+    let tokenClient;
+    let accessToken = null;
+
+    function initializeGmailAPI() {
+      gapi.client.init({
+        discoveryDocs: ["https://www.googleapis.com/discovery/v1/apis/gmail/v1/rest"]
+      }).then(() => {
+        listEmailsFromHR();
+      });
+    }
+
+    function listEmailsFromHR() {
+      gapi.client.gmail.users.messages.list({
+        userId: "me",
+        q: "from:sec22cj043@sairamtap.edu.in",
+        maxResults: 5
+      }).then(response => {
+        const messages = response.result.messages;
+        const emailList = document.getElementById("email-list");
+        emailList.innerHTML = "";
+
+        if (!messages || messages.length === 0) {
+          emailList.innerHTML = "<p>No internship emails found.</p>";
+          return;
+        }
+
+        messages.forEach(msg => {
+          gapi.client.gmail.users.messages.get({
+            userId: 'me',
+            id: msg.id
+          }).then(fullMsg => {
+            const headers = fullMsg.result.payload.headers;
+            const subject = headers.find(h => h.name === "Subject")?.value || "(No Subject)";
+            const from = headers.find(h => h.name === "From")?.value || "(Unknown)";
+            const date = headers.find(h => h.name === "Date")?.value || "(Unknown)";
+            const snippet = fullMsg.result.snippet || "";
+
+            emailList.innerHTML += `
+              <div class="mentor-card">
+                <p><strong>From:</strong> ${from}</p>
+                <p><strong>Subject:</strong> ${subject}</p>
+                <p><strong>Date:</strong> ${date}</p>
+                <p><strong>Body:</strong> ${snippet}</p>
+                <button onclick="exportEmail('${msg.id}', \`${subject.replace(/'/g, "")}\`)">Export</button>
+              </div>
+            `;
+          });
+        });
+      });
+    }
+
+    async function exportEmail(messageId, subject) {
+      const msg = await gapi.client.gmail.users.messages.get({
+        userId: 'me',
+        id: messageId
+      });
+
+      const headers = msg.result.payload.headers;
+      const from = headers.find(h => h.name === "From")?.value || "(Unknown)";
+      const date = headers.find(h => h.name === "Date")?.value || "(Unknown)";
+      const snippet = msg.result.snippet || "";
+      const attachments = [];
+
+      const parts = msg.result.payload.parts || [];
+      for (const part of parts) {
+        if (part.filename && part.body.attachmentId) {
+          const attachment = await gapi.client.gmail.users.messages.attachments.get({
+            userId: 'me',
+            messageId,
+            id: part.body.attachmentId
+          });
+
+          const data = attachment.result.data;
+          const byteCharacters = atob(data.replace(/-/g, '+').replace(/_/g, '/'));
+          const byteNumbers = new Array(byteCharacters.length);
+          for (let i = 0; i < byteCharacters.length; i++) {
+            byteNumbers[i] = byteCharacters.charCodeAt(i);
+          }
+          const byteArray = new Uint8Array(byteNumbers);
+          const blob = new Blob([byteArray]);
+          const link = document.createElement("a");
+          link.href = URL.createObjectURL(blob);
+          link.download = part.filename;
+          link.click();
+
+          attachments.push(part.filename);
+        }
+      }
+
+      // Export email as PDF
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+      doc.setFontSize(12);
+      doc.text(`From: ${from}`, 10, 10);
+      doc.text(`Subject: ${subject}`, 10, 20);
+      doc.text(`Date: ${date}`, 10, 30);
+      doc.text(`Body: ${snippet}`, 10, 40);
+      if (attachments.length > 0) {
+        doc.text(`Attachments downloaded: ${attachments.join(", ")}`, 10, 50);
+      }
+      doc.save(`${subject || "email"}.pdf`);
+    }
+
+    // Setup Sign-in
+    window.onload = () => {
+      tokenClient = google.accounts.oauth2.initTokenClient({
+        client_id: CLIENT_ID,
+        scope: SCOPES,
+        callback: (tokenResponse) => {
+          accessToken = tokenResponse.access_token;
+          gapi.load('client', initializeGmailAPI);
+        }
+      });
+
+      const signInDiv = document.getElementById("g_id_signin");
+      const signInBtn = document.createElement("button");
+      signInBtn.textContent = "Sign in to View Internship Emails";
+      signInBtn.onclick = () => {
+        tokenClient.requestAccessToken();
+      };
+      signInDiv.appendChild(signInBtn);
+    };
+  </script>
+</body>
+</html>

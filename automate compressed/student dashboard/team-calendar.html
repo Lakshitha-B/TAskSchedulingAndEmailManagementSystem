@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Team Calendar</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="form-container">
+    <h2>Team Calendar</h2>
+
+    <!-- View Schedule -->
+    <div class="glow-box">
+      <p><strong>Team Members:</strong> Lakshitha, Harini, Aditya</p>
+      <ul>
+        <li><strong>Lakshitha:</strong> Mentor Meeting – July 3, 10:00 AM</li>
+        <li><strong>Harini:</strong> Internal Review – July 4, 2:00 PM</li>
+        <li><strong>Aditya:</strong> Mentor Feedback – July 5, 11:00 AM</li>
+      </ul>
+    </div>
+
+    <!-- Schedule New Team Meeting -->
+    <form>
+      <input type="date" required>
+      <input type="time" required>
+      <input type="url" placeholder="Google Meet Link">
+      <input type="text" placeholder="Meeting Purpose">
+      <button type="submit">Schedule Team Meeting</button>
+    </form>
+
+    <br><a href="student-dashboard.html" style="color:#00ffe7">← Back to Dashboard</a>
+  </div>
+  <script type="module">
+  import { db } from "../firebase-config.js";
+  import { collection, getDocs } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js";
+
+  async function loadMeetings() {
+    const querySnapshot = await getDocs(collection(db, "meetings"));
+    const container = document.querySelector(".calendar-container");
+
+    if (querySnapshot.empty) {
+      container.innerHTML = "<p>No meetings scheduled.</p>";
+      return;
+    }
+
+    querySnapshot.forEach((doc) => {
+      const m = doc.data();
+      const div = document.createElement("div");
+      div.innerHTML = `
+        <li><strong>${m.team}:</strong> Meeting on ${m.date} at ${m.time}<br>
+        <a href="${m.link}" target="_blank">${m.link}</a></li>
+        <hr>`;
+      container.appendChild(div);
+    });
+  }
+
+  loadMeetings();
+</script>
+
+  
+</body>
+</html>

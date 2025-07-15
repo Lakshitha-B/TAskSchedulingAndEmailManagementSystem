@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>My Progress</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="form-container">
+    <h2>My Progress</h2>
+
+    <!-- 🔹 Ratings Section -->
+    <h3>🟡 Task Ratings</h3>
+    <div id="ratings-section" class="mentor-card"></div>
+
+    <!-- 🔹 Feedback Section -->
+    <h3>💬 Feedback</h3>
+    <div id="feedback-section" class="mentor-card"></div>
+
+    <!-- 🔹 Meetings Section -->
+    <h3>📅 Scheduled Meetings</h3>
+    <div id="meetings-section" class="mentor-card"></div>
+
+    <br><a href="student-dashboard.html" style="color:#00ffe7">← Back to Dashboard</a>
+  </div>
+
+  <script>
+    // 🔁 Fetch Ratings
+    async function loadRatings() {
+      try {
+        const res = await fetch("http://127.0.0.1:5000/get_ratings");
+        const ratings = await res.json();
+
+        const container = document.getElementById("ratings-section");
+        container.innerHTML = "";
+
+        if (ratings.length === 0) {
+          container.innerHTML = "<p>No ratings found.</p>";
+          return;
+        }
+
+        ratings.forEach(r => {
+          container.innerHTML += `
+            <div class="mentor-card">
+              <p><strong>Task:</strong> ${r.task_id}</p>
+              <p><strong>Rating:</strong> ⭐ ${r.rating}</p>
+            </div>`;
+        });
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    // 🔁 Fetch Feedbacks
+    async function loadFeedbacks() {
+      try {
+        const res = await fetch("http://127.0.0.1:5000/get_feedbacks");
+        const feedbacks = await res.json();
+
+        const container = document.getElementById("feedback-section");
+        container.innerHTML = "";
+
+        if (feedbacks.length === 0) {
+          container.innerHTML = "<p>No feedback available.</p>";
+          return;
+        }
+
+        feedbacks.forEach(fb => {
+          container.innerHTML += `
+            <div class="mentor-card">
+              <p><strong>Task:</strong> ${fb.name}</p>
+              <p><strong>Feedback:</strong> ${fb.feedback}</p>
+            </div>`;
+        });
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    // 🔁 Fetch Meetings
+    async function loadMeetings() {
+      try {
+        const res = await fetch("http://127.0.0.1:5000/get_meetings");
+        const meetings = await res.json();
+
+        const container = document.getElementById("meetings-section");
+        container.innerHTML = "";
+
+        if (meetings.length === 0) {
+          container.innerHTML = "<p>No upcoming meetings.</p>";
+          return;
+        }
+
+        meetings.forEach(m => {
+          container.innerHTML += `
+            <div class="mentor-card">
+              <p><strong>Team:</strong> ${m.mentor_name}</p>
+              <p><strong>Date:</strong> ${m.meeting_date}</p>
+              <p><strong>Agenda:</strong> ${m.agenda}</p>
+            </div>`;
+        });
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    // 🔁 Load All on Page Load
+    window.onload = () => {
+      loadRatings();
+      loadFeedbacks();
+      loadMeetings();
+    };
+  </script>
+  <script type="module">
+  import { db } from "../firebase-config.js";
+  import { collection, getDocs } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js";
+
+  async function loadFeedback() {
+    const querySnapshot = await getDocs(collection(db, "feedback"));
+    const container = document.querySelector(".form-container");
+
+    querySnapshot.forEach((doc) => {
+      const f = doc.data();
+      const div = document.createElement("div");
+      div.className = "mentor-card";
+      div.innerHTML = `
+        <p><strong>Task:</strong> ${f.task}</p>
+        <p><strong>Student:</strong> ${f.student}</p>
+        <p><strong>Rating:</strong> ${f.rating || "—"}</p>
+        <p><strong>Mentor Feedback:</strong> ${f.feedback || "—"}</p>
+      `;
+      container.appendChild(div);
+    });
+  }
+
+  loadFeedback();
+</script>
+
+</body>
+</html>

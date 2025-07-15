@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Team Calendar</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="calendar-wrapper">
+    <h2>📅 Team Calendar View</h2>
+
+    <div class="calendar-container">
+      <div class="team-select">
+        <label>Select Teammate:</label>
+        <select id="teammateSelect">
+          <option value="you">You</option>
+          <option value="teammate1">Teammate 1</option>
+          <option value="teammate2">Teammate 2</option>
+          <!-- Add dynamically in real use -->
+        </select>
+      </div>
+
+      <div class="calendar-grid">
+        <div class="calendar-day">
+          <h3>Monday</h3>
+          <ul><li>Figma Design (Mentor)</li></ul>
+        </div>
+        <div class="calendar-day">
+          <h3>Tuesday</h3>
+          <ul><li>Team Meet</li></ul>
+        </div>
+        <div class="calendar-day">
+          <h3>Wednesday</h3>
+          <ul><li>Video Submission</li></ul>
+        </div>
+        <!-- Add remaining days -->
+      </div>
+    </div>
+  </div>
+      <br><a href="student-dashboard.html" style="color:#00ffe7">← Back to Dashboard</a>
+      <script type="module">
+  import { db } from "../firebase-config.js";
+  import { collection, getDocs } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js";
+
+  async function loadMeetings() {
+    const querySnapshot = await getDocs(collection(db, "meetings"));
+    const container = document.querySelector(".calendar-container");
+
+    querySnapshot.forEach((doc) => {
+      const m = doc.data();
+      // Only show meeting if all fields exist
+      if (m.team && m.date && m.time) {
+        const div = document.createElement("div");
+        div.innerHTML = `<li><strong>${m.team}:</strong> Meeting on ${m.date} at ${m.time}</li>`;
+        container.appendChild(div);
+      }
+    });
+  }
+
+  loadMeetings();
+</script>
+
+
+
+</body>
+</html>

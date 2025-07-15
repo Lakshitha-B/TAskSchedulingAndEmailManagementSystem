@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>HR Dashboard</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="../auth.js"></script>
+</head>
+<body>
+  <div class="dashboard-container">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <h2>HR Dashboard</h2>
+      <ul>
+        <li><a href="create-user.html">Create Mentor</a></li>
+        <li><a href="view-mentors.html">Mentors Activity</a></li>
+        <li><a href="view-students.html">Teams & Students</a></li>
+        <li><a href="top-performers.html">Top Performers</a></li>
+        <li><a href="#" id="logoutLink">Logout</a></li>
+
+      </ul>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <header>
+        <h1>Welcome HR!</h1>
+        <center>Select a task from the sidebar to get started.</center>
+      </header>
+    </main>
+  </div>
+   <script>
+  document.getElementById("logoutLink").addEventListener("click", function (e) {
+    e.preventDefault(); // prevent default anchor behavior
+
+    // Clear any login data if you add sessionStorage/localStorage later
+    // sessionStorage.clear(); or localStorage.clear();
+    localStorage.removeItem("userRole");
+    // Redirect to login page
+    window.location.href = "../login.html"; // Adjust path if needed
+  });
+</script>
+<script src="auth.js"></script>
+<script>
+  // Check role
+  checkAuth("hr"); // for HR dashboard
+</script>
+</body>
+</html>

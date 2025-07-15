@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Schedule Meeting</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="form-container">
+    <h2>Schedule Team Meeting</h2>
+
+    <form id="meetingForm">
+      <!-- Team Selection -->
+      <select id="teamSelect" required>
+        <option value="">Select Team</option>
+        <option value="Team Alpha">Team Alpha</option>
+        <option value="Team Sigma">Team Sigma</option>
+        <option value="Team Delta">Team Delta</option>
+      </select><br>
+
+      <!-- Date and Time -->
+      <input type="date" id="meetingDate" required><br>
+      <input type="time" id="meetingTime" required><br>
+
+      <!-- Meet Link -->
+      <input type="url" id="meetLink" placeholder="Google Meet Link" required><br>
+
+      <div style="text-align: center;">
+        <button type="submit">Schedule</button>
+      </div>
+    </form>
+
+    <br><a href="mentor-dashboard.html" style="color:#00ffe7">← Back to Dashboard</a>
+  </div>
+
+  <!-- ✅ Backend API Integration Script -->
+  <script>
+    document.getElementById("meetingForm").addEventListener("submit", async function(e) {
+      e.preventDefault();
+
+      const mentor_name = document.getElementById("teamSelect").value;
+      const date = document.getElementById("meetingDate").value;
+      const time = document.getElementById("meetingTime").value;
+      const meetLink = document.getElementById("meetLink").value;
+
+      if (!mentor_name || !date || !time || !meetLink) {
+        alert("Please fill in all fields.");
+        return;
+      }
+
+      const meeting_date = `${date} ${time}`;
+      const agenda = `Join meeting at: ${meetLink}`;
+
+      try {
+        const res = await fetch("http://127.0.0.1:5000/schedule_meeting", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            mentor_name: mentor_name,
+            meeting_date: meeting_date,
+            agenda: agenda
+          })
+        });
+
+        const result = await res.json();
+        if (res.ok) {
+          alert("✅ Meeting scheduled successfully!");
+          document.getElementById("meetingForm").reset();
+        } else {
+          alert("❌ Failed to schedule: " + result.error);
+        }
+      } catch (err) {
+        alert("Error: " + err.message);
+      }
+    });
+  </script>
+  <script type="module" src="schedule-meeting.js"></script>
+</body>
+</html>

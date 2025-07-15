@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Create Mentor</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="form-container">
+    <h2>Create New Mentor</h2>
+
+    <form id="createUserForm">
+      <input type="text" id="name" placeholder="Full Name" required><br>
+      <input type="email" id="email" placeholder="Email" required><br>
+      <input type="password" id="password" placeholder="Password" required><br>
+
+      <!-- Role is fixed to mentor (hidden) -->
+      <input type="hidden" id="role" value="mentor">
+
+      <select id="domain" required>
+        <option value="">Select Domain</option>
+        <option value="AI">AI</option>
+        <option value="Web Development">Web Development</option>
+        <option value="UI/UX">UI/UX</option>
+        <option value="Machine Learning">Machine Learning</option>
+        <option value="Cybersecurity">Cybersecurity</option>
+      </select><br>
+
+      <button type="submit">Register Mentor</button>
+    </form>
+
+    <br><a href="hr-dashboard.html" style="color:#00ffe7">← Back to Dashboard</a>
+  </div>
+
+  <!-- Firebase Script -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
+    import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
+    import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyAw-zxBhbuKw9nwCHaMNxwAhJgNluVeBIs",
+      authDomain: "myapp-46bf1.firebaseapp.com",
+      projectId: "myapp-46bf1",
+      storageBucket: "myapp-46bf1.appspot.com",
+      messagingSenderId: "449749067491",
+      appId: "1:449749067491:web:e6e9ee4189a00fd82f87d6",
+      measurementId: "G-S8BZF1W7DM"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    const form = document.getElementById("createUserForm");
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const name = document.getElementById("name").value;
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+      const role = document.getElementById("role").value;
+      const domain = document.getElementById("domain").value;
+
+      try {
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        const uid = userCredential.user.uid;
+
+        await setDoc(doc(db, "users", uid), {
+          name,
+          email,
+          role,
+          domain
+        });
+
+        alert("Mentor registered successfully!");
+        form.reset();
+      } catch (error) {
+        alert("Error creating user: " + error.message);
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Create Team</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    .student-block {
+      border: 1px solid #ccc;
+      padding: 10px;
+      margin-bottom: 15px;
+      border-radius: 8px;
+    }
+  </style>
+</head>
+<body>
+  <div class="form-container">
+    <h2>Create New Team</h2>
+
+    <form id="teamForm">
+      <input type="text" id="teamName" placeholder="Team Name" required><br><br>
+
+      <div id="studentsContainer"></div>
+
+      <button type="button" onclick="addStudent()">+ Add Student</button><br><br>
+      <button type="submit">Create Team</button>
+    </form>
+
+    <br><a href="mentor-dashboard.html" style="color:#00ffe7">← Back to Dashboard</a>
+  </div>
+
+  <!-- Firebase & Logic -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
+    import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
+    import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyAw-zxBhbuKw9nwCHaMNxwAhJgNluVeBIs",
+      authDomain: "myapp-46bf1.firebaseapp.com",
+      projectId: "myapp-46bf1",
+      storageBucket: "myapp-46bf1.appspot.com",
+      messagingSenderId: "449749067491",
+      appId: "1:449749067491:web:e6e9ee4189a00fd82f87d6"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    let studentCount = 0;
+
+    window.addStudent = function () {
+      const container = document.getElementById("studentsContainer");
+      const div = document.createElement("div");
+      div.classList.add("student-block");
+      div.innerHTML = `
+        <h4>Student ${studentCount + 1}</h4>
+        <input type="text" placeholder="Full Name" class="studentName" required><br>
+        <input type="email" placeholder="Email" class="studentEmail" required><br>
+        <input type="password" placeholder="Password" class="studentPassword" required><br>
+        <select class="studentDomain" required>
+          <option value="">Select Domain</option>
+          <option value="AI">AI</option>
+          <option value="Web Development">Web Development</option>
+          <option value="UI/UX">UI/UX</option>
+          <option value="ML">Machine Learning</option>
+          <option value="Cybersecurity">Cybersecurity</option>
+        </select>
+      `;
+      container.appendChild(div);
+      studentCount++;
+    }
+
+    // Add first block by default
+    addStudent();
+
+    document.getElementById("teamForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const teamName = document.getElementById("teamName").value;
+      const studentBlocks = document.querySelectorAll(".student-block");
+
+      try {
+        for (let block of studentBlocks) {
+          const name = block.querySelector(".studentName").value;
+          const email = block.querySelector(".studentEmail").value;
+          const password = block.querySelector(".studentPassword").value;
+          const domain = block.querySelector(".studentDomain").value;
+
+          // Register student in Firebase Auth
+          const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+          const uid = userCredential.user.uid;
+
+          // Save additional details in Firestore
+          await setDoc(doc(db, "users", uid), {
+            name: name,
+            email: email,
+            domain: domain,
+            role: "student",
+            team: teamName
+          });
+        }
+
+        alert("Team created and students registered successfully!");
+        e.target.reset();
+        document.getElementById("studentsContainer").innerHTML = "";
+        studentCount = 0;
+        addStudent();
+
+      } catch (error) {
+        alert("Error: " + error.message);
+      }
+    });
+  </script>
+</body>
+</html>

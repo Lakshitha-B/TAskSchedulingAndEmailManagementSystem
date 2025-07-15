@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Student Dashboard</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="../auth.js"></script>
+</head>
+<body>
+  <div class="dashboard-container">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <h2>Student Panel</h2>
+      <ul>
+        <li><a href="view-tasks.html">Assigned Tasks</a></li>
+        <li><a href="team-calendar.html">Meeting Schedule</a></li>
+        <li><a href="email.html">Filtered Emails</a></li>
+        <li><a href="progress.html">My Progress</a></li>
+        <li><a href="student-profile.html">Profile</a></li>
+        <li><a href="student-calendar.html">Calendar</a></li>
+        <li><a href="#" id="logoutLink">Logout</a></li>
+      </ul>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <header>
+        <h1>Welcome, Intern!</h1>
+        <p>Check your tasks, meetings, and updates from your mentor and HR.</p>
+      </header>
+    </main>
+  </div>
+  <script>
+  document.getElementById("logoutLink").addEventListener("click", function (e) {
+    e.preventDefault(); // prevent default anchor behavior
+
+    // Clear any login data if you add sessionStorage/localStorage later
+    // sessionStorage.clear(); or localStorage.clear();
+    localStorage.removeItem("userRole");
+    // Redirect to login page
+    window.location.href = "../login.html"; // Adjust path if needed
+  });
+</script>
+<script src="auth.js"></script>
+<script>
+  // Check role
+  checkAuth("student"); // for student dashboard
+</script>
+</body>
+</html>

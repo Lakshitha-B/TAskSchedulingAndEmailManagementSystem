@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Login | Internship Portal</title>
+  <link rel="stylesheet" href="login-style.css" />
+</head>
+<body>
+  <div class="login-wrapper">
+    <div class="login-box">
+      <h2>Internship Portal</h2>
+      <form id="loginForm">
+        <input type="text" id="username" placeholder="Email or HR username" required />
+        <input type="password" id="password" placeholder="Password" required />
+        <button type="submit">Login</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Ghost Trail Effect -->
+  <div class="trail-container"></div>
+  <script>
+    const trailLength = 20;
+    const trailElements = [];
+    for (let i = 0; i < trailLength; i++) {
+      const dot = document.createElement("div");
+      dot.className = "ghost-dot";
+      document.querySelector(".trail-container").appendChild(dot);
+      trailElements.push({ element: dot, x: 0, y: 0 });
+    }
+    let mouseX = 0, mouseY = 0;
+    document.addEventListener("mousemove", (e) => {
+      mouseX = e.clientX;
+      mouseY = e.clientY;
+    });
+    function animateTrail() {
+      let x = mouseX;
+      let y = mouseY;
+      for (let i = 0; i < trailLength; i++) {
+        const dot = trailElements[i];
+        dot.x += (x - dot.x) * 0.25;
+        dot.y += (y - dot.y) * 0.25;
+        dot.element.style.left = dot.x + "px";
+        dot.element.style.top = dot.y + "px";
+        x = dot.x;
+        y = dot.y;
+      }
+      requestAnimationFrame(animateTrail);
+    }
+    animateTrail();
+  </script>
+
+  <!-- Firebase Auth + Static HR Login -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
+    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyAw-zxBhbuKw9nwCHaMNxwAhJgNluVeBIs",
+      authDomain: "myapp-46bf1.firebaseapp.com",
+      projectId: "myapp-46bf1",
+      storageBucket: "myapp-46bf1.appspot.com",
+      messagingSenderId: "449749067491",
+      appId: "1:449749067491:web:e6e9ee4189a00fd82f87d6",
+      measurementId: "G-S8BZF1W7DM"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    const form = document.getElementById("loginForm");
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const username = document.getElementById("username").value.trim();
+      const password = document.getElementById("password").value.trim();
+
+      // ✅ Static HR Login
+      if (username === "hadmin" && password === "hr1234") {
+        localStorage.setItem("userRole", "hr");
+        window.location.href = "HR Dashboard/hr-dashboard.html";
+        return;
+      }
+
+      // ✅ Firebase Auth for mentor/student
+      try {
+        const userCredential = await signInWithEmailAndPassword(auth, username, password);
+        const uid = userCredential.user.uid;
+
+        const userDoc = await getDoc(doc(db, "users", uid));
+        if (userDoc.exists()) {
+          const role = userDoc.data().role;
+          localStorage.setItem("userRole", role);
+
+          if (role === "mentor") {
+            window.location.href = "Mentor Dashboard/mentor-dashboard.html";
+          } else if (role === "student") {
+            window.location.href = "Student Dashboard/student-dashboard.html";
+          } else {
+            alert("Unknown role in database.");
+          }
+        } else {
+          alert("User data not found in Firestore.");
+        }
+      } catch (err) {
+        alert("Login failed: " + err.message);
+      }
+    });
+  </script>
+</body>
+</html>

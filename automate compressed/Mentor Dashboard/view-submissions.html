@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Review Submissions</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="form-container">
+    <h2>Review Student Submissions</h2>
+
+    <div class="submission-card">
+      <h3>Team Alpha - Task: Documentation</h3>
+      <p>Submitted by: Lakshitha B</p>
+      <p>Submission Link: <a href="#">View Document</a></p>
+
+      <textarea placeholder="Write feedback..." rows="3" style="width: 100%; margin-top: 10px;"></textarea><br>
+
+      <label>Rating:
+        <select>
+          <option value="">--</option>
+          <option>⭐ 1</option>
+          <option>⭐ 2</option>
+          <option>⭐ 3</option>
+          <option>⭐ 4</option>
+          <option>⭐ 5</option>
+        </select>
+      </label><br><br>
+
+      <div style="text-align:center">
+        <button class="submit-feedback">Submit Feedback</button>
+      </div>
+    </div>
+
+    <div class="submission-card">
+      <h3>Team Sigma - Task: Figma Link</h3>
+      <p>Submitted by: Meena A</p>
+      <p>Submission Link: <a href="#">View Figma</a></p>
+
+      <textarea placeholder="Write feedback..." rows="3" style="width: 100%; margin-top: 10px;"></textarea><br>
+
+      <label>Rating:
+        <select>
+          <option value="">--</option>
+          <option>⭐ 1</option>
+          <option>⭐ 2</option>
+          <option>⭐ 3</option>
+          <option>⭐ 4</option>
+          <option>⭐ 5</option>
+        </select>
+      </label><br><br>
+
+      <div style="text-align:center">
+        <button class="submit-feedback">Submit Feedback</button>
+      </div>
+    </div>
+
+    <br><a href="mentor-dashboard.html" style="color:#00ffe7">← Back to Dashboard</a>
+  </div>
+
+  <!-- 🔁 Firebase Script to Submit Feedback -->
+  <script type="module">
+    import { db } from "../firebase-config.js";
+    import { collection, addDoc, Timestamp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js";
+
+    document.querySelectorAll(".submission-card").forEach((card) => {
+      card.querySelector(".submit-feedback").addEventListener("click", async () => {
+        const task = card.querySelector("h3").innerText;
+        const student = card.querySelector("p:nth-of-type(1)").innerText.replace("Submitted by: ", "");
+        const feedback = card.querySelector("textarea").value;
+        const rating = card.querySelector("select").value;
+
+        try {
+          await addDoc(collection(db, "feedback"), {
+            task,
+            student,
+            feedback,
+            rating,
+            createdAt: Timestamp.now()
+          });
+          alert("✅ Feedback submitted!");
+        } catch (err) {
+          alert("❌ Error submitting feedback: " + err.message);
+        }
+      });
+    });
+  </script>
+</body>
+</html>
